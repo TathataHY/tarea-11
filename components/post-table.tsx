@@ -1,7 +1,6 @@
-"use client";
-
 import { Post } from "@/types";
 import { useState } from "react";
+import { Icons } from "./icons";
 
 const PostsTable = ({
   data,
@@ -12,8 +11,14 @@ const PostsTable = ({
   onDeletePost: (id: number) => void;
   onEditPost: (id: number) => void;
 }) => {
-  //   const [posts, setPosts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof Post;
+    direction: string;
+  }>({
+    key: "id", // Campo por defecto para ordenar
+    direction: "ascending", // Dirección por defecto para ordenar
+  });
   const postsPerPage = 8;
 
   const totalPages = Math.ceil(data.length / postsPerPage);
@@ -32,6 +37,29 @@ const PostsTable = ({
     }
   };
 
+  const requestSort = (key: keyof Post) => {
+    let direction = "ascending";
+    if (sortConfig.key === key && sortConfig.direction === "ascending") {
+      direction = "descending";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getClassNamesFor = (name: keyof Post) => {
+    if (!sortConfig) {
+      return;
+    }
+    return sortConfig.key === name ? sortConfig.direction : undefined;
+  };
+
+  const sortedPosts = [...currentPosts].sort((a, b) => {
+    if (sortConfig.direction === "ascending") {
+      return a[sortConfig.key] > b[sortConfig.key] ? 1 : -1;
+    } else {
+      return a[sortConfig.key] < b[sortConfig.key] ? 1 : -1;
+    }
+  });
+
   const handleEdit = (id: number) => {
     onEditPost(id); // Llama a la función onEditPost de PostsClient
   };
@@ -47,13 +75,37 @@ const PostsTable = ({
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
           <tr>
             <th scope="col" className="px-6 py-3">
-              Id
+              <button
+                onClick={() => requestSort("id")}
+                className="font-semibold"
+              >
+                <div className="flex items-center">
+                  Id
+                  <Icons.arrowDownUp className="w-4 h-4 ml-2" />
+                </div>
+              </button>
             </th>
             <th scope="col" className="px-6 py-3">
-              Title
+              <button
+                onClick={() => requestSort("title")}
+                className="font-semibold"
+              >
+                <div className="flex items-center">
+                  Title
+                  <Icons.arrowDownUp className="w-4 h-4 ml-2" />
+                </div>
+              </button>
             </th>
             <th scope="col" className="px-6 py-3">
-              Body
+              <button
+                onClick={() => requestSort("body")}
+                className="font-semibold"
+              >
+                <div className="flex items-center">
+                  Body
+                  <Icons.arrowDownUp className="w-4 h-4 ml-2" />
+                </div>
+              </button>
             </th>
             <th scope="col" className="px-6 py-3">
               Edit
@@ -64,7 +116,7 @@ const PostsTable = ({
           </tr>
         </thead>
         <tbody>
-          {currentPosts.map(({ id, title, body }) => (
+          {sortedPosts.map(({ id, title, body }) => (
             <tr
               key={id}
               className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
