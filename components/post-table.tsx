@@ -19,6 +19,7 @@ const PostsTable = ({
     key: "id", // Campo por defecto para ordenar
     direction: "ascending", // Dirección por defecto para ordenar
   });
+  const [searchTerm, setSearchTerm] = useState<string>(""); // Estado para el término de búsqueda
   const postsPerPage = 8;
 
   const totalPages = Math.ceil(data.length / postsPerPage);
@@ -52,7 +53,12 @@ const PostsTable = ({
     return sortConfig.key === name ? sortConfig.direction : undefined;
   };
 
-  const sortedPosts = [...currentPosts].sort((a, b) => {
+  // Función para filtrar posts por título
+  const filteredPosts = currentPosts.filter((post) =>
+    post.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const sortedPosts = [...filteredPosts].sort((a, b) => {
     if (sortConfig.direction === "ascending") {
       return a[sortConfig.key] > b[sortConfig.key] ? 1 : -1;
     } else {
@@ -71,6 +77,14 @@ const PostsTable = ({
   return (
     <div>
       <h3 className="text-2xl font-bold mb-4">List of Posts</h3>
+      {/* Input de búsqueda */}
+      <input
+        type="text"
+        placeholder="Search by Title"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="w-[300px] px-4 py-2 mb-4 rounded-md border border-gray-300 focus:outline-none focus:border-blue-500"
+      />
       <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
           <tr>
