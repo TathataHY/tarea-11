@@ -12,6 +12,8 @@ const PostForm = ({
   onUpdatePost: (updatedPost: Post) => void;
   editingPost: Post | null;
 }) => {
+  const [loading, setLoading] = useState(false);
+
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
 
@@ -25,6 +27,7 @@ const PostForm = ({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
     // Validación básica
     if (!title.trim() || !body.trim()) {
       alert("Please fill in all fields");
@@ -48,11 +51,15 @@ const PostForm = ({
     // Limpiar los campos después de enviar
     setTitle("");
     setBody("");
+
+    setLoading(false);
   };
 
   return (
     <form onSubmit={handleSubmit} className="mb-8">
-      <h3 className="text-lg font-bold mb-2">Create New Post</h3>
+      <h3 className="text-lg font-bold mb-2">
+        {editingPost ? "Edit Post" : "Create New Post"}
+      </h3>
       <div className="flex flex-col mb-4">
         <label htmlFor="title" className="mb-2 text-sm">
           Title:
@@ -61,6 +68,7 @@ const PostForm = ({
           type="text"
           id="title"
           value={title}
+          disabled={loading}
           onChange={(e) => setTitle(e.target.value)}
           className="border border-gray-300 px-3 py-2 rounded-md"
           required
@@ -74,6 +82,7 @@ const PostForm = ({
           id="body"
           value={body}
           onChange={(e) => setBody(e.target.value)}
+          disabled={loading}
           className="border border-gray-300 px-3 py-2 rounded-md"
           rows={4}
           required
@@ -81,9 +90,10 @@ const PostForm = ({
       </div>
       <button
         type="submit"
+        disabled={loading}
         className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
       >
-        Create Post
+        {editingPost ? "Update Post" : "Create Post"}
       </button>
     </form>
   );
